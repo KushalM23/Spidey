@@ -1,0 +1,13 @@
+{
+  "name": "telegram-gdrive-bot",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "googleapis": "^144.0.0",
+    "grammy": "^1.30.0"
+  }
+}
