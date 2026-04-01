@@ -155,6 +155,7 @@ app.get("/", (req, res) => {
 // Telegram webhook endpoint
 app.post(WEBHOOK_PATH, async (req, res) => {
   try {
+    console.log("Webhook received:", req.body);
     await bot.handleUpdate(req.body);
   } catch (err) {
     console.error("Webhook error:", err);
@@ -165,10 +166,19 @@ app.post(WEBHOOK_PATH, async (req, res) => {
 // Start server
 app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Webhook URL: ${WEBHOOK_URL}`);
+  
+  // Initialize bot
+  try {
+    await bot.init();
+    console.log("Bot initialized");
+  } catch (err) {
+    console.error("Failed to initialize bot:", err);
+    return;
+  }
   
   // Set webhook
   try {
+    console.log(`Setting webhook to: ${WEBHOOK_URL}`);
     await bot.api.setWebhook(WEBHOOK_URL);
     console.log("Webhook set successfully");
   } catch (err) {
