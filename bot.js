@@ -5,7 +5,7 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import https from "https";
-import http from "http";
+import express from "express";
 import readline from "readline";
 
 // ── Config ─────────────────────────────────────────────────────────────────
@@ -140,13 +140,38 @@ bot.catch((err) => console.error("Bot error:", err));
 
 // ── Start ──────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
+const WEBHOOK_DOMAIN = process.env.WEBHOOK_DOMAIN || `https://spidey.onrender.com`;
+const WEBHOOK_PATH = "/telegram";
+const WEBHOOK_URL = `${WEBHOOK_DOMAIN}${WEBHOOK_PATH}`;
 
-http.createServer((req, res) => {
-  res.writeHead(200, { "Content-Type": "text/plain" });
-  res.end("Bot is running");
-}).listen(PORT, () => {
-  console.log(`Health check server running on port ${PORT}`);
+const app = express();
+app.use(express.json());
+
+// Health check endpoint
+app.get("/", (req, res) => {
+  res.json({ status: "Bot is running" });
 });
 
-console.log("Bot is running...");
-bot.start({ drop_pending_updates: true });
+// Telegram webhook endpoint
+app.post(WEBHOOK_PATH, async (req, res) => {
+  try {
+    await bot.handleUpdate(req.body);
+  } catch (err) {
+    console.error("Webhook error:", err);
+  }
+  res.sendStatus(200);
+});
+
+// Start server
+app.listen(PORT, async () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Webhook URL: ${WEBHOOK_URL}`);
+  
+  // Set webhook
+  try {
+    await bot.api.setWebhook(WEBHOOK_URL);
+    console.log("Webhook set successfully");
+  } catch (err) {
+    console.error("Failed to set webhook:", err);
+  }
+});
