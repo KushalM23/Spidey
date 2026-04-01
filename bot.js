@@ -5,6 +5,7 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import https from "https";
+import http from "http";
 import readline from "readline";
 
 // ── Config ─────────────────────────────────────────────────────────────────
@@ -138,5 +139,14 @@ bot.on("message", async (ctx) => {
 bot.catch((err) => console.error("Bot error:", err));
 
 // ── Start ──────────────────────────────────────────────────────────────────
+const PORT = process.env.PORT || 3000;
+
+http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("Bot is running");
+}).listen(PORT, () => {
+  console.log(`Health check server running on port ${PORT}`);
+});
+
 console.log("Bot is running...");
 bot.start({ drop_pending_updates: true });
