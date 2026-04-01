@@ -138,6 +138,5 @@ bot.on("message", async (ctx) => {
 bot.catch((err) => console.error("Bot error:", err));
 
 // ── Start ──────────────────────────────────────────────────────────────────
-await getDriveService();
 console.log("Bot is running...");
 bot.start({ drop_pending_updates: true });
