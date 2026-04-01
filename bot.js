@@ -12,7 +12,7 @@ const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const GDRIVE_FOLDER_ID = process.env.GDRIVE_FOLDER_ID || "root";
 const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
 const TOKEN_PATH = "token.json";
-const CREDENTIALS_FILE = "credentials.json";
+const CREDENTIALS_FILE = process.env.CREDENTIALS_FILE_PATH || "credentials.json";
 
 if (!TELEGRAM_TOKEN) throw new Error("TELEGRAM_BOT_TOKEN is not set");
 
