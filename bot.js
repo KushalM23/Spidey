@@ -98,17 +98,14 @@ function downloadFile(url, destPath) {
 // ── Bot ────────────────────────────────────────────────────────────────────
 const bot = new Bot(TELEGRAM_TOKEN);
 
-bot.on(":video", async (ctx) => {
-  const video = ctx.message.video || ctx.message.document;
-  if (!video) return;
-
-  const filename = video.file_name || `video_${video.file_unique_id}.mp4`;
+async function handleVideoUpload(ctx, file) {
+  const filename = file.file_name || `video_${file.file_unique_id}.mp4`;
   const tmpPath = path.join(os.tmpdir(), filename);
 
   try {
     await ctx.reply("Downloading...");
 
-    const fileInfo = await ctx.api.getFile(video.file_id);
+    const fileInfo = await ctx.api.getFile(file.file_id);
     const fileUrl = `https://api.telegram.org/file/bot${TELEGRAM_TOKEN}/${fileInfo.file_path}`;
 
     await downloadFile(fileUrl, tmpPath);
@@ -129,6 +126,23 @@ bot.on(":video", async (ctx) => {
     fs.unlink(tmpPath, (err) => {
       if (err && err.code !== "ENOENT") console.error("Failed to delete temp file:", err);
     });
+  }
+}
+
+bot.on(":video", async (ctx) => {
+  await handleVideoUpload(ctx, ctx.message.video);
+});
+
+bot.on(":document", async (ctx) => {
+  const doc = ctx.message.document;
+  if (!doc) return;
+  
+  // Check if document is a video file
+  const isVideoMime = doc.mime_type && doc.mime_type.startsWith("video/");
+  const isVideoExt = doc.file_name && /\.(mp4|avi|mov|mkv|flv|wmv|webm)$/i.test(doc.file_name);
+  
+  if (isVideoMime || isVideoExt) {
+    await handleVideoUpload(ctx, doc);
   }
 });
 
